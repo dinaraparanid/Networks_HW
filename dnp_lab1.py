@@ -2,6 +2,7 @@ import argparse
 import socket
 import sys
 
+from dataclasses import dataclass
 from enum import Enum
 from os import path
 from typing import TypeAlias
@@ -12,12 +13,12 @@ BUFFER_SIZE = 20480
 Addr: TypeAlias = (str, int)
 
 
+@dataclass(init=True, frozen=True, eq=True)
 class ClientState:
-    def __init__(self, addr: Addr, seqno: int, filename: str, bytes_left: int):
-        self.addr = addr
-        self.seqno = seqno
-        self.filename = filename
-        self.bytes_left = bytes_left
+    addr: Addr
+    seqno: int
+    filename: str
+    bytes_left: int
 
 
 class RequestType(Enum):
@@ -26,25 +27,12 @@ class RequestType(Enum):
     ILLEGAL = 3
 
 
+@dataclass(init=True, frozen=True, eq=True, match_args=True)
 class RequestState:
-    __match_args__ = (
-        "request_type",
-        "is_enough_clients",
-        "is_client_active",
-        "is_correct_seqno"
-    )
-
-    def __init__(
-            self,
-            request_type: RequestType,
-            is_enough_clients: bool,
-            is_client_active: bool,
-            is_correct_seqno: int
-    ):
-        self.request_type = request_type
-        self.is_enough_clients = is_enough_clients
-        self.is_client_active = is_client_active
-        self.is_correct_seqno = is_correct_seqno
+    request_type: RequestType
+    is_enough_clients: bool
+    is_client_active: bool
+    is_correct_seqno: int
 
 
 sys.setrecursionlimit(2000)
